@@ -1,4 +1,5 @@
 import numpy as np
+# -- coding: utf-8 --
 from random import shuffle
 
 def svm_loss_naive(W, X, y, reg):
@@ -23,8 +24,9 @@ def svm_loss_naive(W, X, y, reg):
 
   # compute the loss and the gradient
   num_classes = W.shape[1]
-  num_train = X.shape[0]
+
   loss = 0.0
+  num_train = X.shape[0]
   for i in xrange(num_train):
     scores = X[i].dot(W)
     correct_class_score = scores[y[i]]
@@ -34,10 +36,10 @@ def svm_loss_naive(W, X, y, reg):
       margin = scores[j] - correct_class_score + 1 # note delta = 1
       if margin > 0:
         loss += margin
-        #所有数据同一位置求和
+       
         dW[:,j] += X[i]
-        #第j个数据所在类减去
-        dW[:,y[j]]+=-X[i]
+        
+        dW[:,y[i]]+=-X[i]
         
 
   # Right now the loss is a sum over all training examples, but we want it
@@ -67,8 +69,10 @@ def svm_loss_vectorized(W, X, y, reg):
 
   Inputs and outputs are the same as svm_loss_naive.
   """
+
   loss = 0.0
   dW = np.zeros(W.shape) # initialize the gradient as zero
+  num_train = X.shape[0]
 
   #############################################################################
   # TODO:                                                                     #
@@ -76,9 +80,9 @@ def svm_loss_vectorized(W, X, y, reg):
   # result in loss.                                                           #
   #############################################################################
   scores = np.dot(X,W)
-  margin = scores - scores[np.arange(num_train),y] + 1
+  margin = scores - scores[np.arange(num_train),y].reshape(num_train, 1)+1 
   margin[np.arange(num_train),y] = 0.0
-  #只保留大于0的margin
+
   margin = (margin > 0)*margin
   loss += margin.sum() / num_train
   loss += 0.5 * reg * np.sum(W * W)
