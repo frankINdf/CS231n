@@ -20,15 +20,13 @@ from cs231n.classifiers.rnn import CaptioningRNN
 from cs231n.coco_utils import load_coco_data, sample_coco_minibatch, decode_captions
 from cs231n.image_utils import image_from_url
 
-get_ipython().magic(u'matplotlib inline')
 plt.rcParams['figure.figsize'] = (10.0, 8.0) # set default size of plots
 plt.rcParams['image.interpolation'] = 'nearest'
 plt.rcParams['image.cmap'] = 'gray'
 
 # for auto-reloading external modules
 # see http://stackoverflow.com/questions/1907993/autoreload-of-modules-in-ipython
-get_ipython().magic(u'load_ext autoreload')
-get_ipython().magic(u'autoreload 2')
+
 
 def rel_error(x, y):
   """ returns relative error """
@@ -56,11 +54,11 @@ for k, v in data.iteritems():
 
 # # LSTM
 # If you read recent papers, you'll see that many people use a variant on the vanialla RNN called Long-Short Term Memory (LSTM) RNNs. Vanilla RNNs can be tough to train on long sequences due to vanishing and exploding gradiants caused by repeated matrix multiplication. LSTMs solve this problem by replacing the simple update rule of the vanilla RNN with a gating mechanism as follows.
-# 
+#
 # Similar to the vanilla RNN, at each timestep we receive an input $x_t\in\mathbb{R}^D$ and the previous hidden state $h_{t-1}\in\mathbb{R}^H$; the LSTM also maintains an $H$-dimensional *cell state*, so we also receive the previous cell state $c_{t-1}\in\mathbb{R}^H$. The learnable parameters of the LSTM are an *input-to-hidden* matrix $W_x\in\mathbb{R}^{4H\times D}$, a *hidden-to-hidden* matrix $W_h\in\mathbb{R}^{4H\times H}$ and a *bias vector* $b\in\mathbb{R}^{4H}$.
-# 
+#
 # At each timestep we first compute an *activation vector* $a\in\mathbb{R}^{4H}$ as $a=W_xx_t + W_hh_{t-1}+b$. We then divide this into four vectors $a_i,a_f,a_o,a_g\in\mathbb{R}^H$ where $a_i$ consists of the first $H$ elements of $a$, $a_f$ is the next $H$ elements of $a$, etc. We then compute the *input gate* $g\in\mathbb{R}^H$, *forget gate* $f\in\mathbb{R}^H$, *output gate* $o\in\mathbb{R}^H$ and *block input* $g\in\mathbb{R}^H$ as
-# 
+#
 # $$
 # \begin{align*}
 # i = \sigma(a_i) \hspace{2pc}
@@ -69,23 +67,23 @@ for k, v in data.iteritems():
 # g = \tanh(a_g)
 # \end{align*}
 # $$
-# 
+#
 # where $\sigma$ is the sigmoid function and $\tanh$ is the hyperbolic tangent, both applied elementwise.
-# 
+#
 # Finally we compute the next cell state $c_t$ and next hidden state $h_t$ as
-# 
+#
 # $$
 # c_{t} = f\odot c_{t-1} + i\odot g \hspace{4pc}
 # h_t = o\odot\tanh(c_t)
 # $$
-# 
+#
 # where $\odot$ is the elementwise product of vectors.
-# 
+#
 # In the rest of the notebook we will implement the LSTM update rule and apply it to the image captioning task.
 
 # # LSTM: step forward
 # Implement the forward pass for a single timestep of an LSTM in the `lstm_step_forward` function in the file `cs231n/rnn_layers.py`. This should be similar to the `rnn_step_forward` function that you implemented above, but using the LSTM update rule instead.
-# 
+#
 # Once you are done, run the following to perform a simple test of your implementation. You should see errors around `1e-8` or less.
 
 # In[ ]:
@@ -168,7 +166,7 @@ print 'db error: ', rel_error(db_num, db)
 
 # # LSTM: forward
 # In the function `lstm_forward` in the file `cs231n/rnn_layers.py`, implement the `lstm_forward` function to run an LSTM forward on an entire timeseries of data.
-# 
+#
 # When you are done run the following to check your implementation. You should see an error around `1e-7`.
 
 # In[ ]:
@@ -237,7 +235,7 @@ print 'db error: ', rel_error(dx_num, dx)
 
 # #LSTM captioning model
 # Now that you have implemented an LSTM, update the implementation of the `loss` method of the `CaptioningRNN` class in the file `cs231n/classifiers/rnn.py` to handle the case where `self.cell_type` is `lstm`. This should require adding less than 10 lines of code.
-# 
+#
 # Once you have done so, run the following to check your implementation. You should see a difference of less than `1e-10`.
 
 # In[ ]:
@@ -310,7 +308,7 @@ plt.show()
 
 # # LSTM test-time sampling
 # Modify the `sample` method of the `CaptioningRNN` class to handle the case where `self.cell_type` is `lstm`. This should take fewer than 10 lines of code.
-# 
+#
 # When you are done run the following to sample from your overfit LSTM model on some training and validation set samples.
 
 # In[ ]:
@@ -333,7 +331,7 @@ for split in ['train', 'val']:
 
 # # Train a good captioning model!
 # Using the pieces you have implemented in this and the previous notebook, try to train a captioning model that gives decent qualitative results (better than the random garbage you saw with the overfit models) when sampling on the validation set. You can subsample the training set if you want; we just want to see samples on the validatation set that are better than random.
-# 
+#
 # Don't spend too much time on this part; we don't have any explicit accuracy thresholds you need to meet.
 
 # In[ ]:
@@ -347,3 +345,4 @@ pass
 
 pass
 
+"""

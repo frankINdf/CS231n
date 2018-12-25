@@ -139,11 +139,18 @@ class CaptioningRNN(object):
     aff_out, affi_cache = affine_forward(features, W_proj, b_proj)
     embed_caption_in, _ = word_embedding_forward(captions_in, W_embed)
     embed_out, embed_cache = word_embedding_forward(captions_in, W_embed)
-    h, forward_cache = rnn_forward(embed_out, aff_out, Wx, Wh, b)
+    if self.cell_type == 'rnn':
+        h, forward_cache = rnn_forward(embed_out, aff_out, Wx, Wh, b)
+    else:
+        h, forward_cache = lstm_forward(embed_out, aff_out, Wx, Wh, b)
+
     temp_af_out, temp_af_cache = temporal_affine_forward(h, W_vocab, b_vocab)
     loss, dh = temporal_softmax_loss(temp_af_out, captions_out, mask)
     dtemp_af_out, grads['W_vocab'] , grads['b_vocab'] = temporal_affine_backward(dh, temp_af_cache)
-    dx_rnn, dh0_rnn, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(dtemp_af_out, forward_cache)
+    if self.cell_type == 'rnn':
+        dx_rnn, dh0_rnn, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(dtemp_af_out, forward_cache)
+    else:
+        dx_rnn, dh0_rnn, grads['Wx'], grads['Wh'], grads['b'] = lstm_backward(dtemp_af_out, forward_cache)
     grads['W_embed'] = word_embedding_backward(dx_rnn, embed_cache)
     dx_affine, grads['W_proj'], grads['b_proj'] = affine_backward(dh0_rnn, affi_cache)
 
@@ -212,10 +219,16 @@ class CaptioningRNN(object):
     h_affine, _ = affine_forward(features, W_proj, b_proj)
     prev_h = h_affine
     captions[:, 0] = self._start
+    if self.cell_type == 'lstm':
+        prev_c = np.zeros_like(prev_h)
     x = [self._start] * N
     for num in range(1, max_length):
         embed, _ = word_embedding_forward(x, W_embed)
-        next_h, cache = rnn_step_forward(embed, prev_h, Wx, Wh, b)
+        if self.cell_type == 'rnn':
+            next_h, cache = rnn_step_forward(embed, prev_h, Wx, Wh, b)
+        else:
+            next_h, next_c, cache = lstm_step_forward(embed, prev_h, prev_c, Wx, Wh, b)
+            prev_c = next_c
         prev_h = next_h
         out, _ = affine_forward(next_h, W_vocab, b_vocab)
         x = np.argmax(out, axis=1)
